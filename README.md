@@ -55,7 +55,7 @@ Use the action in your workflow yaml by adding a step with `uses: nils-org/depen
 
 ## Limitations
 
-This not a read dependabot, so there so "commands" to give (like `@dependabot rebase` and such). If you need to rebase the PR, you'll have to do that manually.
+This not a real dependabot, so there so "commands" to give (like `@dependabot rebase` and such). If you need to rebase the PR, you'll have to do that manually.
 
 TODOs:
 *  Check what happens when a PR is not merged and closed. Will it simply be re-created every run?
@@ -110,4 +110,4 @@ Small note: If editing the Readme, please conform to the [standard-readme](https
 
 ## License
 
-[MIT License © Nils Andresen][LICENSE.txt]
+[MIT License © Nils Andresen](LICENSE.txt)
