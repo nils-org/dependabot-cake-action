@@ -1,0 +1,33 @@
+name: 'cake-dependabot'
+description: 'Dependency updater for cake build files'
+author: 'nils-a'
+inputs:
+  directory:
+    description: >
+      Where to look for cake files to check for dependency upgrades.
+      The directory is relative to the repository's root.
+      Multiple paths can be provided by splitting them with a new line.
+      Example:
+        directory: |
+          /path/to/first/module
+          /path/to/second/module
+    default: "/"
+    required: false
+  target_branch:
+    description: >
+      Branch to create pull requests against.
+      By default your repository's default branch is used.
+    required: false
+  token:
+    description: >
+      Auth token used to push the changes back to github and create the pull request with.
+      [Learn more about creating and using encrypted secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets)
+    default: ${{ github.token }}
+    required: false
+
+runs:
+  using: 'docker'
+  image: 'docker://nilsa/dependabot-cake'
+branding:
+  icon: 'package'
+  color: 'orange'

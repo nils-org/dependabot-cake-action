@@ -1,0 +1,7 @@
+# frozen_string_literal: true
+
+ruby "2.6.6"
+source "https://rubygems.org"
+
+gem "dependabot-omnibus", "~> 0.123.0"
+gem 'dependabot-cake', git: 'https://github.com/pharos/dependabot-core', branch: "add-support-for-cake"
