@@ -27,7 +27,7 @@ inputs:
 
 runs:
   using: 'docker'
-  image: 'docker://nilsa/dependabot-cake'
+  image: 'docker://nilsa/dependabot-cake:v1.0.1'
 branding:
   icon: 'package'
   color: 'orange'
