@@ -89,10 +89,10 @@ It is also possible to run this action locally:
 * Clone this repo
 * build the docker image
 
-  `cd src && docker build -t dependabot-cake:latest .`
+  `cd src && docker build -t dependabot-cake:develop .`
 * run the container and give the needed environment-vars
 
-  `docker run -e GITHUB_REPOSITORY=nils-a/Cake.7zip -e INPUT_TARGET_BRANCH=develop -e INPUT_TOKEN=your-github-api-token dependabot-cake`
+  `docker run --rm -e GITHUB_REPOSITORY=nils-a/Cake.7zip -e INPUT_TARGET_BRANCH=develop -e INPUT_TOKEN=your-github-api-token dependabot-cake:develop`
 
 
 ## Maintainers
