@@ -94,6 +94,14 @@ It is also possible to run this action locally:
 
   `docker run --rm -e GITHUB_REPOSITORY=nils-a/Cake.7zip -e INPUT_TARGET_BRANCH=develop -e INPUT_TOKEN=your-github-api-token dependabot-cake:develop`
 
+## Cake targets
+
+* `Build-Image` Creates the image.
+  * `imageName=some-image-name` to set the image name. Default: `dependabot-cake`
+* `Run-Test` Runs a container off the image locally. Settings:
+  * `--test-RepositoryName=owner/repo` to set a repository. Default: `nils-a/Cake.7zip`
+  * `--test-RepositoryBranch=branch` to set a branch. Default: `develop`
+  * Environment variable `INPUT_TOKEN` must be set to a personal access token.
 
 ## Maintainers
 
