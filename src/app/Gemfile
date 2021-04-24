@@ -3,5 +3,5 @@
 ruby "2.6.6"
 source "https://rubygems.org"
 
-gem "dependabot-omnibus", "~> 0.123.0"
-gem 'dependabot-cake', git: 'https://github.com/pharos/dependabot-core', branch: "add-support-for-cake"
+gem "dependabot-omnibus", "~> 0.125.6"
+gem 'dependabot-cake', git: 'https://github.com/nils-org/dependabot-core', ref: "9b0318b5d9fb1b90710ef4af1e4da31eae1f671b"
