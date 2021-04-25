@@ -19,7 +19,7 @@ A github action for running dependabot on repositories using cake-build.
 
 This action provides the features, as developed for https://github.com/dependabot/dependabot-core/pull/1848 (a PR for https://github.com/dependabot/dependabot-core/issues/733): **To have dependabot check cake-references**.
 
-Currently dependabot does not support this and sadly merging https://github.com/dependabot/dependabot-core/pull/1848 might take some time. In the meantime it is possibe to use the code provided in the PR to do the checking "manually".
+Currently dependabot does not support this and sadly merging https://github.com/dependabot/dependabot-core/pull/1848 might take some time. In the meantime it is possible to use the code provided in the PR to do the checking "manually".
 
 This action provides the means to do so.
 
@@ -92,7 +92,7 @@ It is also possible to run this action locally:
   `cd src && docker build -t dependabot-cake:develop .`
 * run the container and give the needed environment-vars
 
-  `docker run --rm -e GITHUB_REPOSITORY=nils-a/Cake.7zip -e INPUT_TARGET_BRANCH=develop -e INPUT_TOKEN=your-github-api-token dependabot-cake:develop`
+  `docker run --rm -e DRY_RUN=1 -e GITHUB_REPOSITORY=nils-a/Cake.7zip -e INPUT_TARGET_BRANCH=develop -e INPUT_TOKEN=your-github-api-token dependabot-cake:develop`
 
 ## Cake targets
 
@@ -102,6 +102,7 @@ It is also possible to run this action locally:
   * `--test-RepositoryName=owner/repo` to set a repository. Default: `nils-a/Cake.7zip`
   * `--test-RepositoryBranch=branch` to set a branch. Default: `develop`
   * Environment variable `INPUT_TOKEN` must be set to a personal access token.
+  * `--test-no-dryrun=true` if set, real PRs are created.
 
 ## Maintainers
 

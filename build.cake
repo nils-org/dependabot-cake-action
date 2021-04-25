@@ -11,6 +11,7 @@ var imageName = Argument("imageName", "dependabot-cake");
 // test
 var testRepositoryName = Argument("test-RepositoryName", "nils-a/Cake.7zip");
 var testRepositoryBranch = Argument("test-RepositoryBranch", "develop");
+var testNoDryRun = Argument<bool>("test-no-dryrun", false);
 
 ///////////////////////////////////////////////////////////////////////////////
 // TASKS
@@ -46,26 +47,32 @@ Task("Run-Test")
       throw new ArgumentException("'INPUT_TOKEN' not set. Please set INPUT_TOKEN to your GitHub pat");
    } 
 
-   var output = DockerRun(new DockerContainerRunSettings
+   var envArgs = new List<string>
+   { 
+      $"GITHUB_REPOSITORY={testRepositoryName}",
+      $"INPUT_TARGET_BRANCH={testRepositoryBranch}",
+      "INPUT_TOKEN",
+   };
+
+   if (!testNoDryRun)
    {
-      Env = new string [] 
-      {
-          $"GITHUB_REPOSITORY={testRepositoryName}",
-          $"INPUT_TARGET_BRANCH={testRepositoryBranch}",
-          $"INPUT_TOKEN",
-      },
+      envArgs.Add("DRY_RUN=1");
+   } 
+
+   DockerRunWithoutResult(new DockerContainerRunSettings
+   {
+      Env = envArgs.ToArray(),
       Rm = true,
    },
    imageFullTag,
    "");
-
-   Information(output);
 });
 
 
 
 Task("Default")
 .Does(() => {
+   Information($"test no dry-run is: {testNoDryRun}");
    Warning("Currently there is no default. Chose a better target!");
 });
 

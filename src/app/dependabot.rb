@@ -36,6 +36,9 @@ if !repo_token || repo_token.empty?
   exit(1)
 end
 
+# DryRun - does not create real PRs
+dry_run = ENV["DRY_RUN"] && !ENV["DRY_RUN"].empty?
+
 credentials_repository = [
   {
     "type" => "git_source",
@@ -45,7 +48,7 @@ credentials_repository = [
   }
 ]
 
-def update(source, credentials_repository)
+def update(source, credentials_repository, dry_run)
 
   # Hardcode the package manager to cake
   package_manager = "cake"
@@ -60,6 +63,14 @@ def update(source, credentials_repository)
 
   files = fetcher.files
   commit = fetcher.commit
+
+  if (files.empty?)
+    puts "    - no files found"
+  else
+    files.each do |f|
+      puts "    - found: #{f.name} "
+    end 
+  end
 
   ##############################
   # Parse the dependency files #
@@ -104,7 +115,7 @@ def update(source, credentials_repository)
     #####################################
     # Generate updated dependency files #
     #####################################
-    print "  - Updating #{dep.name} (from #{dep.version})…"
+    puts "  - Updating #{dep.name} (from #{dep.version})"
     updater = Dependabot::FileUpdaters.for_package_manager(package_manager).new(
       dependencies: updated_deps,
       dependency_files: files,
@@ -112,22 +123,29 @@ def update(source, credentials_repository)
     )
 
     updated_files = updater.updated_dependency_files
+    updated_files.each do |f|
+      puts "    - file:#{f.name}"
+    end 
+    
 
-    ########################################
-    # Create a pull request for the update #
-    ########################################
-    pr_creator = Dependabot::PullRequestCreator.new(
-      source: source,
-      base_commit: commit,
-      dependencies: updated_deps,
-      files: updated_files,
-      credentials: credentials_repository,
-      label_language: false,
-    )
-    pull_request = pr_creator.create
-    puts "  - submitted"
-
-    next unless pull_request
+    if (dry_run)
+      puts "    - dry run (no PR)"
+      next
+    else
+      ########################################
+      # Create a pull request for the update #
+      ########################################
+      pr_creator = Dependabot::PullRequestCreator.new(
+        source: source,
+        base_commit: commit,
+        dependencies: updated_deps,
+        files: updated_files,
+        credentials: credentials_repository,
+        label_language: false,
+      )
+      pull_request = pr_creator.create
+      puts "    - PR submitted: #{pull_request}"
+    end
 
   end
 end
@@ -136,13 +154,18 @@ puts "  - Fetching dependency files for #{repo_name}"
 directory.split("\n").each do |dir|
   puts "  - Checking #{dir} ..."
 
-  source = Dependabot::Source.new(
-    provider: "github",
-    repo: repo_name,
-    directory: dir.strip,
-    branch: target_branch,
-  )
-  update source, credentials_repository
+  begin
+    source = Dependabot::Source.new(
+      provider: "github",
+      repo: repo_name,
+      directory: dir.strip,
+      branch: target_branch,
+    )
+    update source, credentials_repository, dry_run
+  rescue Dependabot::DependencyFileNotFound
+    puts "ERROR: no files found in dir: #{dir}"
+    exit(1)
+  end
 end
 
 puts "  - Done"
