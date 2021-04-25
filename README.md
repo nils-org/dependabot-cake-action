@@ -4,24 +4,28 @@ A github action for running dependabot on repositories using cake-build.
 
 ## Table of Contents
 
-- [Background](#background)
+- [Goal](#goal)  
 - [Install](#install)
 - [Usage](#usage)
 - [Limitations](#limitations)
-- [Idea / Attribution](#idea--attribution)
 - [Full Example](#full-example)
+- [Background](#background)
+- [Idea / Attribution](#idea--attribution)
 - [Running Locally](#running-locally)
+- [Alternatives](#alternatives) 
 - [Maintainers](#maintainers)
 - [Contributing](#contributing)
 - [License](#license)
 
-## Background
+## Goal
 
-This action provides the features, as developed for https://github.com/dependabot/dependabot-core/pull/1848 (a PR for https://github.com/dependabot/dependabot-core/issues/733): **To have dependabot check cake-references**.
+The goal of this project is two-fold:
+- Enable users of dependabot to have a dependabot-like way to keep Cake dependencies up-to-date.
+- To keep the code for integrating Cake as a new ecosystem in dependabot up-to-date and tested.
 
-Currently dependabot does not support this and sadly merging https://github.com/dependabot/dependabot-core/pull/1848 might take some time. In the meantime it is possible to use the code provided in the PR to do the checking "manually".
-
-This action provides the means to do so.
+To that end, I have forked the original PR into a [custom repo](https://github.com/nils-org/dependabot-core/tree/cake/main) 
+where I try to keep the original code from [dependabot-PR 1848](https://github.com/dependabot/dependabot-core/pull/1848) up-to-date
+and error-free.
 
 ## Install
 
@@ -63,15 +67,7 @@ Use the action in your workflow yaml by adding a step with `uses: nils-org/depen
 
 ## Limitations
 
-This not a real dependabot, so there so "commands" to give (like `@dependabot rebase` and such). If you need to rebase the PR, you'll have to do that manually.
-
-TODOs:
-*  Check what happens when a PR is not merged and closed. Will it simply be re-created every run?
-* How to "ignore" dependencies? 
-
-## Idea / Attribution
-
-Most of this was shamelessly copied from https://github.com/patrickjahns/dependabot-terraform-action/
+This not a real dependabot, so there are no "commands" to give (like `@dependabot rebase` and such). If you need to rebase the PR, you'll have to do that manually.
 
 ## Full Example
 Save the following content in you're repo under `.github/workflows/dependabot-cake.yml`
@@ -90,6 +86,16 @@ jobs:
       - name: check/update cake dependencies
         uses: nils-org/dependabot-cake-action@v1
 ```
+
+## Background
+
+The original code was developed for https://github.com/dependabot/dependabot-core/pull/1848 (a PR for https://github.com/dependabot/dependabot-core/issues/733): **To have dependabot check cake-references**.
+
+Currently dependabot has postponed adding new ecosystems and sadly merging https://github.com/dependabot/dependabot-core/pull/1848 might take some time.
+
+## Idea / Attribution
+
+Most of this was shamelessly copied from https://github.com/patrickjahns/dependabot-terraform-action/
 
 ## Running Locally
 It is also possible to run this action locally:
@@ -114,6 +120,10 @@ It is also possible to run this action locally:
   * `--test-no-dryrun` if set, real PRs are created.
   * `--test-ignore=Cake.7zip` ignore a dependency. Can be given multiple times. Default: `[]`
 
+## Alternatives
+
+One alternative to dependabot is [Renovate](https://www.whitesourcesoftware.com/free-developer-tools/renovate/)
+which fully supports Cake. See the [post on cakebuild.net](https://cakebuild.net/blog/2021/04/cake-support-in-renovate) for a sample integration.
 
 ## Maintainers
 
