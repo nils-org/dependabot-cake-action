@@ -51,6 +51,14 @@ Use the action in your workflow yaml by adding a step with `uses: nils-org/depen
     # [Learn more about creating and using encrypted secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets)
     # default: ${{ github.token }}
     token: ""
+
+    # List of dependencies that will not be updated
+    # Example:
+    #   ignore: |
+    #    Cake.7zip
+    #    Cake.asciidoctorj
+    # default: none
+    ignore: ""
 ```
 
 ## Limitations
@@ -102,7 +110,10 @@ It is also possible to run this action locally:
   * `--test-RepositoryName=owner/repo` to set a repository. Default: `nils-a/Cake.7zip`
   * `--test-RepositoryBranch=branch` to set a branch. Default: `develop`
   * Environment variable `INPUT_TOKEN` must be set to a personal access token.
-  * `--test-no-dryrun=true` if set, real PRs are created.
+  * `--test-folder=subfolder` to set a folder to search. Can be given multiple times. Default: `["/"]`
+  * `--test-no-dryrun` if set, real PRs are created.
+  * `--test-ignore=Cake.7zip` ignore a dependency. Can be given multiple times. Default: `[]`
+
 
 ## Maintainers
 

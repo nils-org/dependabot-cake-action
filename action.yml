@@ -24,6 +24,14 @@ inputs:
       [Learn more about creating and using encrypted secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets)
     default: ${{ github.token }}
     required: false
+  ignore:
+    description: >
+      List of dependencies that will not be updated
+      Example:
+        ignore: |
+          Cake.7zip
+          Cake.asciidoctorj
+    required: false
 
 runs:
   using: 'docker'

@@ -11,7 +11,9 @@ var imageName = Argument("imageName", "dependabot-cake");
 // test
 var testRepositoryName = Argument("test-RepositoryName", "nils-a/Cake.7zip");
 var testRepositoryBranch = Argument("test-RepositoryBranch", "develop");
-var testNoDryRun = Argument<bool>("test-no-dryrun", false);
+var testFolders = Arguments<string>("test-folder", null).Where(x => x != null).ToList();
+var testIgnore = Arguments<string>("test-ignore", null).Where(x => x != null).ToList();
+var testNoDryRun = HasArgument("test-no-dryrun");
 
 ///////////////////////////////////////////////////////////////////////////////
 // TASKS
@@ -42,21 +44,47 @@ Task("Run-Test")
    .IsDependentOn("Build-Image")
    .Does(() =>
 {
-   if(string.IsNullOrEmpty(EnvironmentVariable("INPUT_TOKEN")))
-   {
-      throw new ArgumentException("'INPUT_TOKEN' not set. Please set INPUT_TOKEN to your GitHub pat");
+   Information($"running test on RepositoryName:{testRepositoryName} branch:{testRepositoryBranch}");
+   if(testFolders.Count > 0)
+   { 
+       Information($"searching in folders: {string.Join(", ", (IEnumerable<string>)testFolders)}");
    } 
+   if(testIgnore.Count > 0)
+   { 
+       Information($"ignoring packages: {string.Join(", ", (IEnumerable<string>)testIgnore)}");
+   } 
+   if(testNoDryRun)
+   {
+      Warning("NO-DRY-RUN is set. Real PRs will be created.");
+   } 
+
+   var branches = string.Join("\n", testRepositoryBranch);
 
    var envArgs = new List<string>
    { 
       $"GITHUB_REPOSITORY={testRepositoryName}",
-      $"INPUT_TARGET_BRANCH={testRepositoryBranch}",
+      $"INPUT_TARGET_BRANCH={branches}",
       "INPUT_TOKEN",
    };
+
+   if (testFolders.Count > 0)
+   {
+      envArgs.Add($"INPUT_DIRECTORY={string.Join("\n", (IEnumerable<string>)testFolders)}");
+   } 
 
    if (!testNoDryRun)
    {
       envArgs.Add("DRY_RUN=1");
+   } 
+
+   if(testIgnore.Count > 0)
+   {
+      envArgs.Add($"INPUT_IGNORE={string.Join("\n", (IEnumerable<string>)testIgnore)}");
+   } 
+
+   if(string.IsNullOrEmpty(EnvironmentVariable("INPUT_TOKEN")))
+   {
+      throw new ArgumentException("'INPUT_TOKEN' not set. Please set INPUT_TOKEN to your GitHub pat");
    } 
 
    DockerRunWithoutResult(new DockerContainerRunSettings
