@@ -24,10 +24,18 @@ inputs:
       [Learn more about creating and using encrypted secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets)
     default: ${{ github.token }}
     required: false
+  ignore:
+    description: >
+      List of dependencies that will not be updated
+      Example:
+        ignore: |
+          Cake.7zip
+          Cake.asciidoctorj
+    required: false
 
 runs:
   using: 'docker'
-  image: 'docker://nilsa/dependabot-cake:v1.0.1'
+  image: 'docker://ghcr.io/nils-org/dependabot-cake-action:1.1.0-GH-8.1'
 branding:
   icon: 'package'
   color: 'orange'

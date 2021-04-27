@@ -4,24 +4,28 @@ A github action for running dependabot on repositories using cake-build.
 
 ## Table of Contents
 
-- [Background](#background)
+- [Goal](#goal)  
 - [Install](#install)
 - [Usage](#usage)
 - [Limitations](#limitations)
-- [Idea / Attribution](#idea--attribution)
 - [Full Example](#full-example)
+- [Background](#background)
+- [Idea / Attribution](#idea--attribution)
 - [Running Locally](#running-locally)
+- [Alternatives](#alternatives) 
 - [Maintainers](#maintainers)
 - [Contributing](#contributing)
 - [License](#license)
 
-## Background
+## Goal
 
-This action provides the features, as developed for https://github.com/dependabot/dependabot-core/pull/1848 (a PR for https://github.com/dependabot/dependabot-core/issues/733): **To have dependabot check cake-references**.
+The goal of this project is two-fold:
+- Enable users of dependabot to have a dependabot-like way to keep Cake dependencies up-to-date.
+- To keep the code for integrating Cake as a new ecosystem in dependabot up-to-date and tested.
 
-Currently dependabot does not support this and sadly merging https://github.com/dependabot/dependabot-core/pull/1848 might take some time. In the meantime it is possibe to use the code provided in the PR to do the checking "manually".
-
-This action provides the means to do so.
+To that end, I have forked the original PR into a [custom repo](https://github.com/nils-org/dependabot-core/tree/cake/main) 
+where I try to keep the original code from [dependabot-PR 1848](https://github.com/dependabot/dependabot-core/pull/1848) up-to-date
+and error-free.
 
 ## Install
 
@@ -51,19 +55,19 @@ Use the action in your workflow yaml by adding a step with `uses: nils-org/depen
     # [Learn more about creating and using encrypted secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets)
     # default: ${{ github.token }}
     token: ""
+
+    # List of dependencies that will not be updated
+    # Example:
+    #   ignore: |
+    #    Cake.7zip
+    #    Cake.asciidoctorj
+    # default: none
+    ignore: ""
 ```
 
 ## Limitations
 
-This not a real dependabot, so there so "commands" to give (like `@dependabot rebase` and such). If you need to rebase the PR, you'll have to do that manually.
-
-TODOs:
-*  Check what happens when a PR is not merged and closed. Will it simply be re-created every run?
-* How to "ignore" dependencies? 
-
-## Idea / Attribution
-
-Most of this was shamelessly copied from https://github.com/patrickjahns/dependabot-terraform-action/
+This not a real dependabot, so there are no "commands" to give (like `@dependabot rebase` and such). If you need to rebase the PR, you'll have to do that manually.
 
 ## Full Example
 Save the following content in you're repo under `.github/workflows/dependabot-cake.yml`
@@ -83,6 +87,16 @@ jobs:
         uses: nils-org/dependabot-cake-action@v1
 ```
 
+## Background
+
+The original code was developed for https://github.com/dependabot/dependabot-core/pull/1848 (a PR for https://github.com/dependabot/dependabot-core/issues/733): **To have dependabot check cake-references**.
+
+Currently dependabot has postponed adding new ecosystems and sadly merging https://github.com/dependabot/dependabot-core/pull/1848 might take some time.
+
+## Idea / Attribution
+
+Most of this was shamelessly copied from https://github.com/patrickjahns/dependabot-terraform-action/
+
 ## Running Locally
 It is also possible to run this action locally:
 
@@ -92,7 +106,7 @@ It is also possible to run this action locally:
   `cd src && docker build -t dependabot-cake:develop .`
 * run the container and give the needed environment-vars
 
-  `docker run --rm -e GITHUB_REPOSITORY=nils-a/Cake.7zip -e INPUT_TARGET_BRANCH=develop -e INPUT_TOKEN=your-github-api-token dependabot-cake:develop`
+  `docker run --rm -e DRY_RUN=1 -e GITHUB_REPOSITORY=nils-a/Cake.7zip -e INPUT_TARGET_BRANCH=develop -e INPUT_TOKEN=your-github-api-token dependabot-cake:develop`
 
 ## Cake targets
 
@@ -102,6 +116,14 @@ It is also possible to run this action locally:
   * `--test-RepositoryName=owner/repo` to set a repository. Default: `nils-a/Cake.7zip`
   * `--test-RepositoryBranch=branch` to set a branch. Default: `develop`
   * Environment variable `INPUT_TOKEN` must be set to a personal access token.
+  * `--test-folder=subfolder` to set a folder to search. Can be given multiple times. Default: `["/"]`
+  * `--test-no-dryrun` if set, real PRs are created.
+  * `--test-ignore=Cake.7zip` ignore a dependency. Can be given multiple times. Default: `[]`
+
+## Alternatives
+
+One alternative to dependabot is [Renovate](https://www.whitesourcesoftware.com/free-developer-tools/renovate/)
+which fully supports Cake. See the [post on cakebuild.net](https://cakebuild.net/blog/2021/04/cake-support-in-renovate) for a sample integration.
 
 ## Maintainers
 
