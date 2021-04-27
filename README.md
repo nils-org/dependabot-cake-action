@@ -84,7 +84,7 @@ jobs:
     runs-on: ubuntu-latest # linux, because this is a docker-action
     steps:
       - name: check/update cake dependencies
-        uses: nils-org/dependabot-cake-action@v1
+        uses: nils-org/dependabot-cake-action@v1.1.0
 ```
 
 ## Background
