@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-set -e
-pushd /usr/src/app > /dev/null
+#!/usr/bin/env sh
+cd /usr/src/app
 bundle exec ./dependabot.rb
-popd

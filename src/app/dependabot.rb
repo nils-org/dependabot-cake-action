@@ -6,6 +6,7 @@ require "dependabot/update_checkers"
 require "dependabot/file_updaters"
 require "dependabot/pull_request_creator"
 require "dependabot/omnibus"
+require "set"
 
 
 # Utilize the github env variable per default
@@ -36,6 +37,18 @@ if !repo_token || repo_token.empty?
   exit(1)
 end
 
+# DryRun - does not create real PRs
+dry_run = ENV["DRY_RUN"] && !ENV["DRY_RUN"].empty?
+
+# ignores
+ignore_references = ENV["INPUT_IGNORE"]
+if !ignore_references || ignore_references.empty?
+  ignore_references = []
+else
+  ignore_references = ignore_references.gsub(/\\n/, "\n").split("\n").map(&:downcase)
+end
+ignore_references = Set.new ignore_references
+
 credentials_repository = [
   {
     "type" => "git_source",
@@ -45,7 +58,7 @@ credentials_repository = [
   }
 ]
 
-def update(source, credentials_repository)
+def update(source, credentials_repository, dry_run, ignore_references)
 
   # Hardcode the package manager to cake
   package_manager = "cake"
@@ -61,10 +74,18 @@ def update(source, credentials_repository)
   files = fetcher.files
   commit = fetcher.commit
 
+  if (files.empty?)
+    puts "    - no files found"
+  else
+    files.each do |f|
+      puts "    - found: #{f.name} "
+    end 
+  end
+
   ##############################
   # Parse the dependency files #
   ##############################
-  puts "  - Parsing dependencies information"
+  puts "    - Parsing dependencies information"
   parser = Dependabot::FileParsers.for_package_manager(package_manager).new(
     dependency_files: files,
     source: source,
@@ -101,10 +122,16 @@ def update(source, credentials_repository)
       requirements_to_unlock: requirements_to_unlock
     )
 
+    # check omitted
+    if (ignore_references.include? dep.name.downcase)
+      puts "    - #{dep.name} is set to ignore."
+      next
+    end
+
     #####################################
     # Generate updated dependency files #
     #####################################
-    print "  - Updating #{dep.name} (from #{dep.version})…"
+    puts "    - Updating #{dep.name} (from #{dep.version})"
     updater = Dependabot::FileUpdaters.for_package_manager(package_manager).new(
       dependencies: updated_deps,
       dependency_files: files,
@@ -112,37 +139,52 @@ def update(source, credentials_repository)
     )
 
     updated_files = updater.updated_dependency_files
+    updated_files.each do |f|
+      puts "      - file:#{f.name}"
+    end 
+    
 
-    ########################################
-    # Create a pull request for the update #
-    ########################################
-    pr_creator = Dependabot::PullRequestCreator.new(
-      source: source,
-      base_commit: commit,
-      dependencies: updated_deps,
-      files: updated_files,
-      credentials: credentials_repository,
-      label_language: false,
-    )
-    pull_request = pr_creator.create
-    puts "  - submitted"
-
-    next unless pull_request
+    if (dry_run)
+      puts "      - dry run (no PR)"
+      next
+    else
+      ########################################
+      # Create a pull request for the update #
+      ########################################
+      pr_creator = Dependabot::PullRequestCreator.new(
+        source: source,
+        base_commit: commit,
+        dependencies: updated_deps,
+        files: updated_files,
+        credentials: credentials_repository,
+        label_language: false,
+      )
+      pull_request = pr_creator.create
+      puts "      - PR submitted: #{pull_request}"
+    end
 
   end
 end
 
-puts "  - Fetching dependency files for #{repo_name}"
+puts "    - Fetching dependency files for #{repo_name}"
 directory.split("\n").each do |dir|
-  puts "  - Checking #{dir} ..."
+  puts "    - Checking #{dir} ..."
 
-  source = Dependabot::Source.new(
-    provider: "github",
-    repo: repo_name,
-    directory: dir.strip,
-    branch: target_branch,
-  )
-  update source, credentials_repository
+  begin
+    source = Dependabot::Source.new(
+      provider: "github",
+      repo: repo_name,
+      directory: dir.strip,
+      branch: target_branch,
+    )
+    update source, credentials_repository, dry_run, ignore_references
+  rescue Dependabot::DependencyFileNotFound
+    puts "ERROR: No files found in dir: #{dir}"
+    exit(1)
+  rescue Dependabot::BranchNotFound
+    puts "ERROR: No branch with the name of: #{target_branch}"
+    exit(1)
+  end
 end
 
-puts "  - Done"
+puts "    - Done"
